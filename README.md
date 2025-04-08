@@ -1,5 +1,7 @@
 # Assembly Publicizer
 
+Forked from [CabbageCrow's](https://github.com/CabbageCrow) [Assembly Publisher](https://github.com/CabbageCrow/AssemblyPublicizer) to use modern .NET and add some features.
+
 ## What is it for?
   
 A tool to create a copy of an assembly in which **all members are public** (types, methods, fields, getters and setters of properties).  
@@ -41,6 +43,7 @@ Options:
 |  -h, --help                | Show this message and exit                        |
 
 ## Support me
+### (Links are for original author, [CabbageCrow](https://github.com/CabbageCrow))
 If you like my work, spread the word so more people can enjoy it.  
 You also can show your appreciation with a metaphorical coffee or cabbage:  
 <a href='https://ko-fi.com/Q5Q0BT8U' target='_blank'><img height='55' style='border:0px;height:55px;' 

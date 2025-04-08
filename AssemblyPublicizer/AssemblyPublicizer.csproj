@@ -31,7 +31,10 @@
     <Description>Creates a copy of an assembly in which all members are public</Description>
     <Company>CabbageCrow</Company>
     <Product>AssemblyPublicizer</Product>
-    <Copyright>Copyright © 2018 CabbageCrow</Copyright>
+    <Copyright>
+      Copyright © 2018 CabbageCrow
+      Copyright © 2025 joshnoe94
+    </Copyright>
     <AssemblyVersion>1.2.1.0</AssemblyVersion>
     <FileVersion>1.2.1.0</FileVersion>
   </PropertyGroup>
