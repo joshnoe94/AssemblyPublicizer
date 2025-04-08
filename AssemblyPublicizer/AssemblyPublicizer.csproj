@@ -1,69 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{82206A7B-CAA3-4FF9-BBBD-D88B3AAA7BA4}</ProjectGuid>
+    <TargetFramework>net8.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <RootNamespace>CabbageCrow.AssemblyPublicizer</RootNamespace>
-    <AssemblyName>AssemblyPublicizer</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Mono.Cecil, Version=0.11.6.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.11.6\lib\net40\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Mdb, Version=0.11.6.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.11.6\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Pdb, Version=0.11.6.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.11.6\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Rocks, Version=0.11.6.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.11.6\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Options, Version=6.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Options.6.12.0.148\lib\net40\Mono.Options.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AssemblyPublicizer.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
   <ItemGroup>
     <Content Include="Licenses\AssemblyPublicizer.LICENSE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -76,11 +20,19 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <PackageReference Include="Mono.Cecil" Version="0.11.6" />
+    <PackageReference Include="Mono.Options" Version="6.12.0.148" />
+  </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>XCOPY "$(TargetDir)Licenses\*" "$(SolutionPath)\..\..\AssemblyPublicizer\Licenses\*" /S /Y
-copy  "$(TargetPath)" "$(SolutionPath)\..\..\AssemblyPublicizer\"</PostBuildEvent>
+    <AssemblyTitle>AssemblyPublicizer</AssemblyTitle>
+    <Description>Creates a copy of an assembly in which all members are public</Description>
+    <Company>CabbageCrow</Company>
+    <Product>AssemblyPublicizer</Product>
+    <Copyright>Copyright © 2018 CabbageCrow</Copyright>
+    <AssemblyVersion>1.2.1.0</AssemblyVersion>
+    <FileVersion>1.2.1.0</FileVersion>
   </PropertyGroup>
 </Project>
