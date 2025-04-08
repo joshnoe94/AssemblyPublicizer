@@ -55,6 +55,7 @@ namespace CabbageCrow.AssemblyPublicizer
 			var defaultOutputDir = "publicized_assemblies";
 
 			var input = "";
+			var inputFiles = new List<string>();
 			string output = "";
 
 			var options = new OptionSet
@@ -78,13 +79,12 @@ namespace CabbageCrow.AssemblyPublicizer
 					ShowHelp(options);
 
 				if (input == "" && extra.Count() >= 1)
-					input = extra[0];
-
-				if (input == "")
+				{
+					inputFiles.AddRange(extra);
+				}
+				if (inputFiles.Count == 0)
 					throw new OptionException();
 
-				if (output == "" && extra.Count() >= 2)
-					output = extra[1];
 			}
 			catch (OptionException)
 			{
@@ -95,134 +95,136 @@ namespace CabbageCrow.AssemblyPublicizer
 				Exit(10);
 			}
 
+            foreach (var inputFile in inputFiles)
+            {
+                AssemblyDefinition assembly = null;
+				string outputPath = "", outputName = "";
 
-			var inputFile = input;
-			AssemblyDefinition assembly = null;
-			string outputPath = "", outputName = "";
 
+				if (output != "")
+				{
+					try
+					{
+						outputPath = Path.GetDirectoryName(output);
+						outputName = Path.GetFileName(output);
+					}
+					catch(Exception)
+					{
+						Console.WriteLine("ERROR! Invalid output argument.");
+						Exit(20);
+					}
+				}
 
-			if (output != "")
-			{
+			
+				if (!File.Exists(inputFile))
+				{
+					Console.WriteLine();
+					Console.WriteLine("ERROR! File doesn't exist or you don't have sufficient permissions.");
+					Exit(30);
+				}
+
 				try
 				{
-					outputPath = Path.GetDirectoryName(output);
-					outputName = Path.GetFileName(output);
+					assembly = AssemblyDefinition.ReadAssembly(inputFile);
 				}
-				catch(Exception)
+				catch (Exception)
 				{
-					Console.WriteLine("ERROR! Invalid output argument.");
-					Exit(20);
+					Console.WriteLine();
+					Console.WriteLine("ERROR! Cannot read the assembly. Please check your permissions.");
+					Exit(40);
 				}
-			}
 
 
-			if (!File.Exists(inputFile))
-			{
+				var allTypes = GetAllTypes(assembly.MainModule);
+				var allMethods = allTypes.SelectMany(t => t.Methods);
+				var allFields = allTypes.SelectMany(t => t.Fields);
+
+				int count;
+				string reportString = "Changed {0} {1} to public.";
+
+				#region Make everything public
+
+				count = 0;
+				foreach (var type in allTypes)
+				{
+					if (!type?.IsPublic ?? false && !type.IsNestedPublic)
+					{
+						count++;
+						if (type.IsNested)
+							type.IsNestedPublic = true;
+						else
+							type.IsPublic = true;
+					}
+				}
+				Console.WriteLine(reportString, count, "types");
+
+				count = 0;
+				foreach (var method in allMethods)
+				{
+					if (!method?.IsPublic ?? false)
+					{
+						count++;
+						method.IsPublic = true;
+					}
+				}
+				Console.WriteLine(reportString, count, "methods (including getters and setters)");
+
+				count = 0;
+				foreach (var field in allFields)
+				{
+					if (!field?.IsPublic ?? false)
+					{
+						count++;
+						field.IsPublic = true;
+					}
+				}
+				Console.WriteLine(reportString, count, "fields");
+
+				#endregion
+
+
 				Console.WriteLine();
-				Console.WriteLine("ERROR! File doesn't exist or you don't have sufficient permissions.");
-				Exit(30);
-			}
 
-			try
-			{
-				assembly = AssemblyDefinition.ReadAssembly(inputFile);
-			}
-			catch (Exception)
-			{
+				if (outputName == "")
+				{
+					outputName = String.Format("{0}{1}{2}",
+						Path.GetFileNameWithoutExtension(inputFile), suffix, Path.GetExtension(inputFile));
+					Console.WriteLine(@"Info: Use default output name: ""{0}""", outputName);
+				}
+
+				if (outputPath == "")
+				{
+					outputPath = defaultOutputDir;
+					Console.WriteLine(@"Info: Use default output dir: ""{0}""", outputPath);
+				}
+
+				Console.WriteLine("Saving a copy of the modified assembly ...");
+
+				var outputFile = Path.Combine(outputPath, outputName);
+
+				try
+				{
+					if (outputPath != "" && !Directory.Exists(outputPath))
+						Directory.CreateDirectory(outputPath);
+					assembly.Write(outputFile);
+				}
+				catch (Exception)
+				{
+					Console.WriteLine();
+					Console.WriteLine("ERROR! Cannot create/overwrite the new assembly. ");
+					Console.WriteLine("Please check the path and its permissions " +
+						"and in case of overwriting an existing file ensure that it isn't currently used.");
+					Exit(50);
+				}
+
+				Console.WriteLine("Completed.");
 				Console.WriteLine();
-				Console.WriteLine("ERROR! Cannot read the assembly. Please check your permissions.");
-				Exit(40);
+				Console.WriteLine("Use the publicized library as your reference and compile your dll with the ");
+				Console.WriteLine(@"option ""Allow unsafe code"" enabled.");
+				Console.WriteLine(@"Without it you get an access violation exception during runtime when accessing");
+				Console.WriteLine("private members except for types.");
 			}
 
-
-			var allTypes = GetAllTypes(assembly.MainModule);
-			var allMethods = allTypes.SelectMany(t => t.Methods);
-			var allFields = allTypes.SelectMany(t => t.Fields);
-
-			int count;
-			string reportString = "Changed {0} {1} to public.";
-
-			#region Make everything public
-
-			count = 0;
-			foreach (var type in allTypes)
-			{
-				if (!type?.IsPublic ?? false && !type.IsNestedPublic)
-				{
-					count++;
-					if (type.IsNested)
-						type.IsNestedPublic = true;
-					else
-						type.IsPublic = true;
-				}
-			}
-			Console.WriteLine(reportString, count, "types");
-
-			count = 0;
-			foreach (var method in allMethods)
-			{
-				if (!method?.IsPublic ?? false)
-				{
-					count++;
-					method.IsPublic = true;
-				}
-			}
-			Console.WriteLine(reportString, count, "methods (including getters and setters)");
-
-			count = 0;
-			foreach (var field in allFields)
-			{
-				if (!field?.IsPublic ?? false)
-				{
-					count++;
-					field.IsPublic = true;
-				}
-			}
-			Console.WriteLine(reportString, count, "fields");
-
-			#endregion
-
-
-			Console.WriteLine();
-
-			if (outputName == "")
-			{
-				outputName = String.Format("{0}{1}{2}",
-					Path.GetFileNameWithoutExtension(inputFile), suffix, Path.GetExtension(inputFile));
-				Console.WriteLine(@"Info: Use default output name: ""{0}""", outputName);
-			}
-
-			if(outputPath == "")
-			{
-				outputPath = defaultOutputDir;
-				Console.WriteLine(@"Info: Use default output dir: ""{0}""", outputPath);
-			}
-
-			Console.WriteLine("Saving a copy of the modified assembly ...");
-
-			var outputFile = Path.Combine(outputPath, outputName);
-
-			try
-			{
-				if (outputPath != "" && !Directory.Exists(outputPath))
-					Directory.CreateDirectory(outputPath);
-				assembly.Write(outputFile);
-			}
-			catch (Exception)
-			{
-				Console.WriteLine();
-				Console.WriteLine("ERROR! Cannot create/overwrite the new assembly. ");
-				Console.WriteLine("Please check the path and its permissions " +
-					"and in case of overwriting an existing file ensure that it isn't currently used.");
-				Exit(50);
-			}
-
-			Console.WriteLine("Completed.");
-			Console.WriteLine();
-			Console.WriteLine("Use the publicized library as your reference and compile your dll with the ");
-			Console.WriteLine(@"option ""Allow unsafe code"" enabled.");
-			Console.WriteLine(@"Without it you get an access violation exception during runtime when accessing");
-			Console.WriteLine("private members except for types.");
 			Exit(0);
 		}
 
